@@ -57,7 +57,7 @@ px str =
 
 itemHeight : Int
 itemHeight =
-    20
+    48
 
 
 containerHeight : Int
@@ -111,17 +111,54 @@ view : Model -> Html Msg
 view model =
     div
         [ style "height" <| px (String.fromInt containerHeight)
-        , style "width" "100%"
         , style "background" "lightcoral"
+        , style "overflow" "auto"
         ]
-        []
+        [ headers
+        , body model
+        ]
 
 
 headers : Html Msg
 headers =
     let
         mkHeader num =
-            div [ style "width" <| px (String.fromInt columnWidth), style "background" "lightgreen" ] [ text <| "Column " ++ String.fromInt num ]
+            div
+                [ style "width" <| px (String.fromInt columnWidth)
+                , style "min-width" <| px (String.fromInt columnWidth)
+                , style "max-width" <| px (String.fromInt columnWidth)
+                , style "background" "lightgreen"
+                , style "display" "table-cell"
+                , style "height" <| px (String.fromInt itemHeight)
+                , style "vertical-align" "middle"
+                ]
+                [ text <| "Column " ++ String.fromInt num ]
     in
-    div [] <|
-        List.map mkHeader columns
+    div [ style "display" "table-header-group" ]
+        [ div [ style "display" "table-row" ] <| List.map mkHeader columns
+        ]
+
+
+body : Model -> Html Msg
+body { items } =
+    let
+        mkCell num =
+            div
+                [ style "width" <| px (String.fromInt columnWidth)
+                , style "min-width" <| px (String.fromInt columnWidth)
+                , style "max-width" <| px (String.fromInt columnWidth)
+                , style "background" "lightblue"
+                , style "display" "table-cell"
+                , style "height" <| px (String.fromInt itemHeight)
+                , style "vertical-align" "middle"
+                ]
+                [ text <| "Column " ++ String.fromInt num ]
+
+        mkRow item =
+            div
+                [ style "display" "table-row" ]
+            <|
+                List.map mkCell columns
+    in
+    div [ style "display" "table-row-group" ] <|
+        List.map mkRow items
