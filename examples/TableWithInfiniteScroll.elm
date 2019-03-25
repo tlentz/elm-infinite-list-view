@@ -75,7 +75,7 @@ columnWidth =
     185
 
 
-config : IL.Config String Msg
+config : IL.Config Item Msg
 config =
     IL.config
         { itemView = itemView
@@ -83,14 +83,7 @@ config =
         , containerHeight = containerHeight
         }
         |> IL.withOffset 300
-
-
-itemView : Int -> Int -> String -> Html Msg
-itemView idx listIdx item =
-    div
-        [ style "height" (String.fromInt itemHeight ++ "px")
-        ]
-        [ text item ]
+        |> IL.withCustomContainer customContainer
 
 
 
@@ -107,16 +100,23 @@ itemView idx listIdx item =
 --         [ IL.view config model.infList model.content ]
 
 
+customContainer : List ( String, String ) -> List (Html Msg) -> Html Msg
+customContainer styles children =
+    div []
+        [ headers
+        , div [ style "display" "table-row-group" ] children
+        ]
+
+
 view : Model -> Html Msg
 view model =
     div
         [ style "height" <| px (String.fromInt containerHeight)
         , style "background" "lightcoral"
         , style "overflow" "auto"
+        , IL.onScroll InfListMsg
         ]
-        [ headers
-        , body model
-        ]
+        [ IL.view config model.infList model.items ]
 
 
 headers : Html Msg
@@ -139,8 +139,8 @@ headers =
         ]
 
 
-body : Model -> Html Msg
-body { items } =
+itemView : Int -> Int -> Item -> Html Msg
+itemView idx listIdx item =
     let
         mkCell num =
             div
@@ -153,12 +153,8 @@ body { items } =
                 , style "vertical-align" "middle"
                 ]
                 [ text <| "Column " ++ String.fromInt num ]
-
-        mkRow item =
-            div
-                [ style "display" "table-row" ]
-            <|
-                List.map mkCell columns
     in
-    div [ style "display" "table-row-group" ] <|
-        List.map mkRow items
+    div
+        [ style "display" "table-row" ]
+    <|
+        List.map mkCell columns
